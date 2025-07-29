@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, reactive } from 'vue'
 import axios from 'axios'
+import LoadingSpinner from './icons/LoadingSpinner.vue'
 
 const profile = reactive({
     username: '',
@@ -11,6 +12,8 @@ const profile = reactive({
     image: '',
     id: '',
 })
+
+const isLoading = ref(true)
 
 onMounted(() => {
     const token = localStorage.getItem('token')
@@ -25,10 +28,16 @@ onMounted(() => {
                 profile.gender = response.data.gender
                 profile.image = response.data.image
                 profile.id = response.data.id
+                isLoading.value = false
             })
             .catch(error => {
                 console.log(error)
             })
+    }
+    else {
+        window.location.href = '/'
+        alert('WTF man. Please login')
+        return
     }
 })
 
@@ -41,7 +50,8 @@ function logout() {
 </script>
 
 <template>
-    <div>
+    <div v-if="!isLoading">
+        <button class="btn btn-primary" @click="logout">Logout</button>
         <h1>User Profile</h1>
         <p>Username: {{ profile.username }}</p>
         <p>Email: {{ profile.email }}</p>
@@ -51,5 +61,9 @@ function logout() {
         <p>Image: <img :src="profile.image" alt="User Image"></p>
         <p>Id: {{ profile.id }}</p>
     </div>
-    <button class="btn btn-primary" @click="logout">Logout</button>
+    <div v-else>
+        <h1>
+            <LoadingSpinner class="spinner" />
+        </h1>
+    </div>
 </template>
